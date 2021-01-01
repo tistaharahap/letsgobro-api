@@ -1,4 +1,5 @@
 from mongoengine import Document, StringField, EmbeddedDocument, EmbeddedDocumentField, ListField
+from typing import List
 
 
 class GeoJson(EmbeddedDocument):
@@ -17,3 +18,10 @@ class Airport(Document):
     city = StringField(required=True)
     country = StringField(required=True)
     description = StringField()
+
+    @staticmethod
+    async def aggregate(query: List):
+        result = list(Airport._get_collection().aggregate(query))
+        for row in result:
+            del row['_id']
+        return result
