@@ -22,6 +22,4 @@ class Airport(Document):
     @staticmethod
     async def aggregate(query: List):
         result = list(Airport._get_collection().aggregate(query))
-        for row in result:
-            del row['_id']
         return result
