@@ -1,10 +1,11 @@
 # Initialize and build airport collection
-from functional import seq
-from mongoengine import Document, StringField, GeoPointField, connect, disconnect
-from os import environ
 import json
 import logging
 import os
+from os import environ
+
+from functional import seq
+from mongoengine import Document, EmbeddedDocument, EmbeddedDocumentField, ListField, StringField, connect, disconnect
 
 BASIC_COLLECTION = 'airports/basic.json'
 RICH_COLLECTION_PATH = 'airports/collections'
@@ -21,9 +22,17 @@ logging.basicConfig(level=logging.DEBUG,
 logging.debug(f'Mongo Conn String: {MONGO_CONN_STRING}')
 
 
+class GeoJson(EmbeddedDocument):
+    type = StringField(required=True,
+                       default='Point')
+    coordinates = ListField(required=True,
+                            max_length=2)
+
+
 class Airport(Document):
     iata = StringField(required=True)
-    location = GeoPointField(required=True)
+    location = EmbeddedDocumentField(GeoJson,
+                                     required=True)
     name = StringField(required=True)
     name_english = StringField(required=True)
     city = StringField(required=True)
@@ -62,7 +71,9 @@ def main():
         airport.city = rich_row.get('city')
         airport.country = rich_row.get('country')
         airport.description = rich_row.get('description')
-        airport.location = [basic_row.get('lat'), basic_row.get('lon')]
+        airport.location = GeoJson()
+        airport.location.type = 'Point'
+        airport.location.coordinates = [basic_row.get('lon'), basic_row.get('lat')]
 
         return airport
 
