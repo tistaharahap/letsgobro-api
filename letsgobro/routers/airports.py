@@ -10,17 +10,19 @@ Airports = APIRouter()
 async def airports(latitude: float, longitude: float, max_distance_in_km: int = 50):
     await connect_to_mongodb()
 
-    nearest_airports = list(Airport._get_collection().find({
-        'location': {
-            '$nearSphere': {
-                '$geometry': {
+    nearest_airports = list(Airport._get_collection().aggregate([
+        {
+            '$geoNear': {
+                'near': {
                     'type': 'Point',
-                    'coordinates': [longitude, latitude]
+                    'coordinates': [longitude, latitude],
                 },
-                '$maxDistance': max_distance_in_km * 1000
+                'distanceField': 'distance.in_meters',
+                'maxDistance': max_distance_in_km * 1000,
+                'spherical': True
             }
         }
-    }))
+    ]))
     for row in nearest_airports:
         del row['_id']
 
