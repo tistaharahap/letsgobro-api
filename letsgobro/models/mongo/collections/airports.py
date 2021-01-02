@@ -25,7 +25,42 @@ class Airport(Document):
         return result
 
     @staticmethod
-    async def find_nearest_airport(latitude: float, longitude: float, max_distance_in_km: int):
+    async def reverse_geocode_using_iata(iata: str):
+        query = [
+            {
+                '$match': {
+                    'iata': iata
+                }
+            },
+            {
+                '$project': {
+                    'latitude': {
+                        '$arrayElemAt': ['$location.coordinates', 1]
+                    },
+                    'longitude': {
+                        '$arrayElemAt': ['$location.coordinates', 0]
+                    },
+                }
+            }
+        ]
+        result = await Airport.aggregate(query=query)
+        if len(result) == 0:
+            return []
+
+        return result[0]
+
+    @staticmethod
+    async def find_destinations(origin: str, max_distance_in_km: int = 1000, min_distance_in_km: int = 120):
+        coordinates = await Airport.reverse_geocode_using_iata(iata=origin)
+        result = await Airport.find_nearest_airport(latitude=coordinates.get('latitude'),
+                                                    longitude=coordinates.get('longitude'),
+                                                    max_distance_in_km=max_distance_in_km,
+                                                    min_distance_in_km=min_distance_in_km)
+
+        return result
+
+    @staticmethod
+    async def find_nearest_airport(latitude: float, longitude: float, max_distance_in_km: int, min_distance_in_km: int = 0):
         query = [
             {
                 '$geoNear': {
@@ -35,6 +70,7 @@ class Airport(Document):
                     },
                     'distanceField': 'distance.in_meters',
                     'maxDistance': max_distance_in_km * 1000,
+                    'minDistance': min_distance_in_km * 1000,
                     'spherical': True
                 }
             },

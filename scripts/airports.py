@@ -67,7 +67,7 @@ def main():
         airport = Airport()
         airport.iata = rich_row.get('id').upper()
         airport.name = rich_row.get('name')
-        airport.name_english = rich_row.get('name_english')
+        airport.name_english = rich_row.get('nameEnglish')
         airport.city = rich_row.get('city')
         airport.country = rich_row.get('country')
         airport.description = rich_row.get('description')
