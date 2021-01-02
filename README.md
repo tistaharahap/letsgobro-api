@@ -29,3 +29,9 @@ Since this is a FastAPI implementation, just run the API and go to `http://local
 | `MONGO_HOST` | Host for MongoDB |
 | `MONGO_DB` | Database for MongoDB |
 
+## Credits
+
+Airport data made possible by these repos in Github:
+
+* [https://github.com/lynnandtonic/airport-codes](https://github.com/lynnandtonic/airport-codes)
+* [https://github.com/mwgg/Airports](https://github.com/mwgg/Airports)
