@@ -34,6 +34,11 @@ class Airport(Document):
             },
             {
                 '$project': {
+                    '_id': 0
+                }
+            },
+            {
+                '$project': {
                     'latitude': {
                         '$arrayElemAt': ['$location.coordinates', 1]
                     },
